@@ -12,7 +12,7 @@
   <br><br>
 </div>
 
-**Android Reverse** is a professional-grade, fully mobile-centric decompiler and reverse engineering suite. Engineered to run entirely on your Android device, it delivers a desktop-class analysis experience, blending high-performance native binary inspection with a sleek, glassmorphism-inspired interface. 
+**Android Reverse** is a professional-grade, fully mobile-centric decompiler and reverse engineering suite. Engineered to run entirely on your Android device, it delivers a desktop-class analysis experience, blending high-performance native binary inspection with a sleek, deep dark interface and neon accents. 
 
 Whether you are navigating obfuscated Smali bytecode, mapping native C/C++ control flows, or extracting hardened APK resources, Android Reverse provides a complete, unified toolkit on the go.
 
