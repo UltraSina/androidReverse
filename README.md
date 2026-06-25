@@ -10,6 +10,12 @@ A reverse engineering suite that runs entirely on Android. No PC, no ADB, no des
 
 ---
 
+## MCP Server
+
+androidReverse includes a built-in [Model Context Protocol](https://modelcontextprotocol.io) server, allowing MCP-compatible AI clients to connect and interact with the tool directly.
+
+---
+
 ## Java Decompilation
 
 Eight engines selectable per-class with a single tap:
