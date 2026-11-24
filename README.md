@@ -1,157 +1,98 @@
-# Android Reverse
+# Android Reverse IDE
 
-[![Platform](https://img.shields.io/badge/Platform-Android-green.svg?logo=android)](https://github.com/UltraSina/androidReverse)
-[![Architecture](https://img.shields.io/badge/Arch-arm64--v8a%20%7C%20armeabi--v7a-ff69b4.svg)](https://github.com/UltraSina/androidReverse)
-[![Status](https://img.shields.io/badge/Status-Active_Development-blue.svg)](https://github.com/UltraSina/androidReverse)
+On-device Android reverse engineering environment for inspecting, decompiling, editing, rebuilding, and signing Android packages and native binaries without a desktop host.
 
-[![Download](https://img.shields.io/badge/📦_Download-Latest_Release-00FF87?style=for-the-badge&logo=android&logoColor=black)](https://github.com/UltraSina/androidReverse/releases)
+- **Platform:** Android 8.0+ (API 26) · `arm64-v8a` / `armeabi-v7a`
+- **Links:** [Releases](https://github.com/UltraSina/androidReverse/releases) · [Issues](https://github.com/UltraSina/androidReverse/issues) · [Telegram](https://t.me/AndroidReverseTool)
 
-A reverse engineering suite that runs entirely on Android. No PC, no ADB, no desktop tools — everything from APK extraction to native binary analysis, editing, and rebuilding happens on-device.
+---
+
+## Overview
+
+Android Reverse IDE runs its decompilation, resource decoding, native binary analysis, bytecode obfuscation/deobfuscation, rebuild, and signing pipelines locally on the device. Changes are staged in managed workspaces before rebuilding and signing output packages.
+
+---
+
+## APK Workspaces, Projects & Signing
+
+- **Package Loading:** Opens `.apk`, `.xapk`, split `.apks` bundles, and installed applications in unified workspace trees.
+- **Saved Projects:** Snapshots multi-archive workspaces, queued Smali/XML/asset edits, bookmarks, and notes across sessions, with search, rename, duplicate, and reload actions.
+- **On-Device Rebuild:** Decodes and recompiles resources via Apktool 3.x and `aapt2` with `zipalign` (4-byte aligned uncompressed `resources.arsc`, 16 KB page-aligned native libraries).
+- **Signing & Keystores:** Signs packages with v1, v2, and v3 schemes (`apksig`), inspects existing certificates, and creates, imports, or exports JKS/PKCS12 keystores.
+- **Standalone Package Signer:** Signs arbitrary `.apk` or `.apks` bundles directly from the home screen without opening a full project.
+- **Workspace File Operations:** Exports, replaces, renames, inspects properties, and individually or batch-deletes files inside loaded archives.
+
+---
+
+## Java Decompilation & Smali Tooling
+
+Eight selectable per-class decompilers, plus Soot/dex2jar bytecode conversion and `smali`/`baksmali`  assembly:
+
+| Engine | Notes |
+|--------|-------|
+| **Jadx** | Primary DEX-to-Java decompiler |
+| **Jadx Fallback** | Automatic fallback configuration for classes that fail standard Jadx passes |
+| **Jadx IR** | Displays Jadx intermediate representation output |
+| **Vineflower** | Fernflower fork focused on structured control flow |
+| **CFR** | Handles modern Java bytecode patterns and obfuscation |
+| **Procyon** | Handles generics, enums, and lambda expressions |
+| **JD-Core** | Lightweight Java decompiler |
+| **Krakatau** | Bytecode-level JVM disassembler |
+
+Smali workflows include:
+
+- **Smali LSP & Editor:** Syntax highlighting, autocomplete, formatting, class/method/field outline navigation, and register/reference jump-to-definition.
+- **Smali Operations:** Direct class editing, import/delete/replace `.smali` files, path copying, class bookmarking, and selection-based Smali explanation.
+- **Native Search & Batch Replace:** Multi-threaded native search across DEX bytecode, strings, numbers, identifiers, and class names (regex and case toggles), paired with dry-run previewed Search & Replace and `smali` assembly validation before queuing edits.
+
+---
+
+## Deobfuscation & Obfuscation
+
+Available both as workspace plugins (with auto-reload) and as standalone APK/APKS batch tools on the home screen:
+
+- **Resource Deobfuscator:** Rebuilds obfuscated `resources.arsc` entries and renames matching `res/` paths cleanly.
+- **DEX Deobfuscator:** Renames obfuscated DEX packages, classes, methods, and fields consistently.
+- **Control Flow Obfuscator:** Applies configurable-depth Dalvik control-flow obfuscation, opaque branch predicates, arithmetic substitution, and Unicode/XOR switch keys by classpath filter rules.
+- **String Encrypter:** Encrypts Dalvik string constants in selected classpaths using selectable ciphers (XOR, RC4, XTEA, Shuffled Base64, or Mixed) with minimum length and seed controls.
+
+---
+
+## Native Binary Analysis (ELF / Unity / Flutter)
+
+Powered by an embedded Radare2 engine and Ghidra :
+
+- **Live Disassembly Listing:** Paged assembly view with inline byte patching, NOP helpers, multi-line batch actions, find-and-replace across the binary, function/comment annotations, and an undoable patch journal persisted back to workspaces.
+- **Pseudo-C Decompilation:**  decompiler view alongside assembly and hex modes in an expandable Sora Editor pane.
+- **Control Flow Graph (CFG):** Interactive draggable canvas with zoom/pan, search highlighting, compact mode, and block-level instruction inspection.
+- **Call Graph & Xrefs:** Depth-adjustable caller/callee tree and cross-reference jumping.
+- **ELF Metadata & Tools:** Binary headers, PIE/NX/Canary/RELRO flags, section jumping, Data Inspector, interactive Radare2 terminal, and an offline SQLite Instruction Dictionary (ARMv7-A, ARMv8-A, x86, x86-64).
+- **Cross-Platform Runtimes:** Unity `libil2cpp.so` + metadata dumping and Flutter `libapp.so` Dart AOT analysis via Unflutter.
+
+---
+
+## Resources, XML, Text & Image Tools
+
+- **Hardened AXML & ARSC:** Decodes and edits `AndroidManifest.xml`, compiled XML resources, and `resources.arsc` tables with fallback framework resources and obfuscation handling.
+- **XML Tooling & Preview:** XML LSP, formatting, search, inline Data Converter integration, and on-device visual Layout Preview.
+- **Code & Text Editors:** Sora Editor with grammars (Java, Smali, C/C++, ARM assembly, XML, JSON, hex) plus a general Text Editor supporting encoding re-open, LF/CRLF/CR line-ending conversion, JSON/XML/bracket validation, structural outline, and MD5/SHA-256 checksums.
+- **Image Editor & Utilities:** Built-in image editor, persistent cross-session Global Notebook, and on-device Data Converter (`Base64`, `Hex <-> Decimal`, `Hex <-> Text`, `URL`, `Unicode Escape`, `XOR`, `Color Hex`, `XML`).
 
 ---
 
 ## MCP Server
 
-androidReverse includes a built-in [Model Context Protocol](https://modelcontextprotocol.io) server, allowing MCP-compatible AI clients to connect and edit resources, AXML, the manifest, and Smali directly within a project. Compilation/rebuild remains a manual, user-triggered step.
+Includes a local [Model Context Protocol](https://modelcontextprotocol.io) foreground server so compatible MCP clients can inspect project files and edit resources, AXML, Native Libraries, manifest entries, and Smali directly inside an active session. Building and signing the output APK remains a manual action.
 
 ---
 
-## Java Decompilation
+## Appearance & Localization
 
-Eight engines selectable per-class with a single tap:
-
-| Engine | Notes |
-|--------|-------|
-| **CFR** | Handles most modern obfuscation well |
-| **Procyon** | Good with generics and lambdas |
-| **JD-Core** | Fast, lightweight |
-| **Krakatau** | Bytecode-level accuracy |
-| **Vineflower** | Fernflower fork, strong on control flow |
-| **Jadx** | Primary engine |
-| **Jadx Fallback** | Activates automatically on Jadx failure |
-| **Jadx IR** | Raw intermediate representations |
+- **Theming:** Material 3 Light, Dark, and System modes, Android 12+ Dynamic Color, AMOLED Pure Black surfaces, custom color palettes, and synchronized TextMate editor themes.
+- **Languages:** Localized in English and Arabic.
 
 ---
 
-## Native Binary Analysis
+## User Agreement & Disclaimer
 
-Powered by an embedded Radare2 engine via JNI.
-
-- **Control Flow Graphs (CFG):** Interactive draggable node canvas with pinch-to-zoom, built on Compose Canvas
-- **Call Graph & Xref Tracing:** Depth-adjustable graphs for incoming/outgoing calls and field read/write references
-- **Multi-mode output:** Switch between Pseudo-C decompilation, raw assembly, and hex dumps
-- **Block Inspector:** Assembly instructions with memory addresses and execution heuristics
-- **Binary Info Panel:** Executable metadata at a glance
-- **Function Rename & Comments:** Annotate binary functions directly within the decompiler
-
----
-
-## APK & Resource Handling
-
-- **Universal extraction:** `.apk`, `.xapk`, and split `.apks` — from storage or installed apps
-- **Hardened AXML decoding:** Reflection-backed `AXMLPrinter` that bypasses modern manifest obfuscation
-- **Deep ARSC parsing:** Navigate resource tables, string pools, and XML attribute mappings in a unified tree view
-- **Export / Replace:** Pull individual files out of an APK, or drop replacements straight back in
-
----
-
-## Resource, AXML & Manifest Editing
-
-- **Resource Editing:** Edit app resources in place, not just view them
-- **AXML Editing:** Edit binary Android XML directly
-- **Manifest Editing:** Edit `AndroidManifest.xml` directly
-- **Res Layout Preview:** Visual preview of Android layout resources as you edit
-- **Professional Image Editor:** Full image editing built into the app
-
----
-
-## APK Rebuild & Signing
-
-- **APK Rebuild:** Repack an APK directly from the app after making changes
-- **Signature Manager:** Create, import, and export JKS keystores, and sign rebuilt APKs
-
----
-
-## Smali Tools
-
-- **Smali LSP:** Language server support for smarter navigation and editing
-- **Smali Editing:** Edit Smali directly in the app
-- **Smali Formatter:** Auto-format Smali code
-- **Smali Import / Delete:** Import new Smali files or delete existing ones
-- **Smali Copy Path:** Quickly copy a class/method's path for reference elsewhere
-- **Jump-to-definition:** Navigate directly to class and method definitions from Smali registers
-- **Class Structure Compass:** Filter and jump to methods or fields within large classes
-- **Smart Smali Explainer:** Select any block of Smali lines and get an instant plain-language explanation of what the code does
-
----
-
-## XML Tools
-
-- **XML LSP:** Language server support for XML editing
-- **XML Formatter:** Auto-format XML
-- **XML Search:** Search within XML files
-- **Data Converter for XML:** Convert data directly within XML files
-
----
-
-## Cross-Platform App Support
-
-- **Flutter:** Dart AOT analysis via Unflutter
-- **Unity:** Native il2cpp metadata parsing and function recovery
-
----
-
-## Code Editor
-
-Built on [Sora Editor](https://github.com/Rosemoe/sora-editor) with TextMate grammar pipelines. Syntax highlighting for Java, Smali, ARM assembly, C, XML, and hex. Includes a general-purpose text editor for ordinary (non-code) files.
-
----
-
-## File Management
-
-- **Remove Files:** Delete files individually or in batch
-- **Extended File Properties:** View more detailed metadata per file
-
----
-
-## Built-in Utilities
-
-**Data Converter** — On-the-fly encoding/decoding with no external tools, now expanded with XML conversion support:
-
-`Base64` · `Hex ↔ Decimal` · `Hex ↔ Text` · `URL Encode/Decode` · `Unicode Escape` · `XOR Cipher` · `Color Hex Preview` · `XML`
-
-**Global Notebook** — Persistent notes across sessions. Track offsets, document findings, save snippets.
-
-**Class Bookmarking** — Pin critical classes for fast access during long sessions.
-
-**Deep Memory Search** — Regex-supported search across Smali, XML, class names, and native binary patterns simultaneously, with improved performance and accuracy.
-
-**Certificate Details** — Expanded scheme support for inspecting signing certificates.
-
----
-
-## Screenshots
-
-| Dashboard & Extraction | Smali Navigation | Native CFG |
-|---|---|---|
-| ![Dashboard](docs/screenshots/placeholder_dashboard.png) | ![Smali](docs/screenshots/placeholder_smali.png) | ![CFG](docs/screenshots/placeholder_cfg.png) |
-| *Tree-view extraction & package parsing* | *Sora Editor with Jump-to-Definition* | *Interactive Radare2 assembly blocks* |
-
-| Call Graph | AXML Decoding | Notebook |
-|---|---|---|
-| ![CallGraph](docs/screenshots/placeholder_callgraph.png) | ![XML](docs/screenshots/placeholder_xml.png) | ![Notebook](docs/screenshots/placeholder_notebook.png) |
-| *Depth-adjustable xref mapping* | *Syntax-highlighted XML viewing* | *Persistent multi-session notes* |
-
----
-
-## Disclaimer
-
-For educational purposes and security research on applications where you have explicit permission from the author. The developer assumes no liability for misuse.
-
----
-
-## Credits
-
-- [Sora Editor](https://github.com/Rosemoe/sora-editor) — mobile code editor
-- [radare2](https://github.com/radareorg/radare2) — native binary analysis engine
-- CFR, Procyon, JD-Core, Krakatau, Vineflower, Jadx — Java decompiler engines
+By installing, opening, or using this application, you agree that you are solely responsible for how you use it and for complying with all applicable laws, licenses, and terms of service. This software is provided "as is" for educational, research, debugging, and authorized analysis purposes only. The developer assumes no legal responsibility or liability for any misuse, unauthorized modification, data loss, or damages arising from the use of this application.
